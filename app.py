@@ -7,11 +7,12 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.memory import ConversationBufferMemory
 from langchain.utilities import WikipediaAPIWrapper
+from langchain.callbacks import get_openai_callback
 
 os.environ['OPENAI_API_KEY'] = apikey
 
-st.title("🦜🔗 Expermiment")
-prompt = st.text_input("Enter your prompt:")
+st.title("🦜🔗 Youtuber")
+prompt = st.text_input("Enter the topic:")
 
 #prompt template
 title_template = PromptTemplate(
@@ -52,9 +53,12 @@ wiki = WikipediaAPIWrapper()
 
 #if there is a prompt, run call llm
 if prompt:
-    title = title_chain.run(topic=prompt)
-    wiki_research = wiki.run(prompt)
-    script = script_chain.run(title=title, wikipedia_research=wiki_research)
+    with get_openai_callback() as cb:
+        title = title_chain.run(topic=prompt)
+        wiki_research = wiki.run(prompt)
+        script = script_chain.run(title=title, wikipedia_research=wiki_research)
+        print(f"Total Tokens: {cb.total_tokens}")
+        print(f"Total Cost (USD): ${cb.total_cost}")
     # response = sequential_chain({'topic': prompt})
     st.write(title)
     st.write(script)
