@@ -6,6 +6,7 @@ from langchain.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain, SequentialChain
 from langchain.memory import ConversationBufferMemory
+from langchain.callbacks import get_openai_callback
 
 os.environ['OPENAI_API_KEY'] = apikey
 
@@ -47,7 +48,11 @@ sequential_chain = SequentialChain(chains=[title_chain, script_chain],
 
 #if there is a prompt, run call llm
 if prompt:
-    response = sequential_chain({'topic': prompt})
+    with get_openai_callback() as cb:
+        response = sequential_chain({'topic': prompt})
+        print(f"Total Tokens: {cb.total_tokens}")
+        print(f"Total Cost (USD): ${cb.total_cost}")
+    
     st.write(response['title'])
     st.write(response['script'])
 
