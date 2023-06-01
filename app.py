@@ -61,11 +61,15 @@ if prompt:
         else:
             wiki_research = ''
         script = script_chain.run(title=title, wikipedia_research=wiki_research)
+#         response = sequential_chain({'topic': prompt})
         print(f"Total Tokens: {cb.total_tokens}")
         print(f"Total Cost (USD): ${cb.total_cost}")
-    # response = sequential_chain({'topic': prompt})
+    
     st.write(title)
     st.write(script)
+    
+#     st.write(response['title'])
+#     st.write(response['script'])
 
     with st.expander("Title History"):
         st.write(title_memory.buffer)
