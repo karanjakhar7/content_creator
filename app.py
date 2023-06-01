@@ -1,5 +1,6 @@
 import os
-from apikey import apikey
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
 import streamlit as st
 from langchain.llms import OpenAI
@@ -9,10 +10,10 @@ from langchain.memory import ConversationBufferMemory
 from langchain.utilities import WikipediaAPIWrapper
 from langchain.callbacks import get_openai_callback
 
-os.environ['OPENAI_API_KEY'] = apikey
 
 st.title("🦜🔗 Youtuber")
 prompt = st.text_input("Enter the topic:")
+use_wiki = st.checkbox('Use Wikipedia Research')
 
 #prompt template
 title_template = PromptTemplate(
@@ -55,7 +56,10 @@ wiki = WikipediaAPIWrapper()
 if prompt:
     with get_openai_callback() as cb:
         title = title_chain.run(topic=prompt)
-        wiki_research = wiki.run(prompt)
+        if use_wiki:
+            wiki_research = wiki.run(prompt)
+        else:
+            wiki_research = ''
         script = script_chain.run(title=title, wikipedia_research=wiki_research)
         print(f"Total Tokens: {cb.total_tokens}")
         print(f"Total Cost (USD): ${cb.total_cost}")
